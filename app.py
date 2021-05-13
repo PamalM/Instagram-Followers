@@ -41,11 +41,25 @@ class Profile:
         else:
             # Write to interval (B) text file list of followers, if it doesn't exist.
             if not os.path.isfile(bPath):
+                temp = []
                 bfile = open(bPath, 'w')
                 for follower in self.profile.get_followers():
-                    self.followers.append(follower.username)
                     bfile.write(follower.username + '\n')
+                    temp.append(follower)
                 bfile.close()
+
+                # If there is a between followers within intervals (A -> B), than append new followers and determine unfollowers.
+                unfollowers = list(set(self.followers) - set(temp))
+                if len(unfollowers) != 0:
+                    self.followers = list() # empty followers list to be overwritten.
+                    for user in unfollowers:
+                        self.unfollowers.append(user)
+                    for user in temp:
+                        self.followers.append(user)
+                        
+                else:
+                    # Else no difference in followers, no need to change followers list in class attribute.
+                    pass
 
             # If interval (B) exists, copy it's contents over to inverval (A) and delete interval (B).
             else:
@@ -69,6 +83,7 @@ class Profile:
                     temp.append(user.strip('\n'))
                 bFile.close()
 
+                # Overwrite interval (A) text file.
                 aFile = open(aPath, 'w')
                 for follower in temp:
                     aFile.write(follower + '\n')
@@ -87,4 +102,7 @@ class Profile:
             
 
 
-user = Profile("user", "pass")
+user = Profile("username", "password")
+user.login()
+user.getFollowers()
+print(user.unfollowers)
